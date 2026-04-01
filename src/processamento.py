@@ -74,4 +74,25 @@ df_tratado = df_tratado.withColumn(
     "valor_parcela",
     col ("valor_parcela").cast("decimal(10,2)")
 
+
+
 )
+media_geral = df_tratado.agg(avg("valor_parcela")).collect()[0][0]
+print(f"Para fins de comparação, a média geral de cada parcela é R$ {media_geral:.2f}")
+
+
+import matplotlib.pyplot as plt
+
+df_uf = df_tratado.groupBy("uf") \
+    .agg(sum("valor_parcela").alias("total_pago")) \
+    .orderBy("total_pago", ascending=False) \
+    .limit(10) \
+    .toPandas()
+
+# Gráfico
+plt.figure()
+plt.bar(df_uf["uf"], df_uf["total_pago"])
+plt.title("Top 10 UFs - Total Pago Bolsa Família")
+plt.xlabel("UF")
+plt.ylabel("Total Pago")
+plt.show()
